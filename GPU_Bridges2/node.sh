@@ -14,6 +14,9 @@ echo "current directory is $PWD"
 echo "environment is: "
 env | sort
 
+#May need to get the CUDA_VISIBLE_DEVICES env
+local_cuda=`cat $SGE_JOB_SPOOL_DIR/environment |grep CUDA_VISIBLE_DEVICES`
+export CUDA_VISIBLE_DEVICES=$local_cuda
 echo "CUDA_VISIBLE_DEVICES = " $CUDA_VISIBLE_DEVICES
 
 w_run "$@" &> west-$SLURM_NODENAME-node.log
