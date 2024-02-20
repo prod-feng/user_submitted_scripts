@@ -3,6 +3,7 @@
 #$ -j y
 #$ -q gpu_long_2080ti
 #$ -l ngpus=1
+#$ -pe openmpi 11
 #$ -P kenprj
 
 set -x
