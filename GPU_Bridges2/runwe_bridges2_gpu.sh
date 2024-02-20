@@ -35,10 +35,15 @@ fi
 
 # start clients, with the proper number of cores on each
 
-cat $pe_hostfile  >& SLURM_NODELIST.log
+cat $pe_hostfile  |awk '{print $1 ," ",$2}' >& SGE_NODELIST.log
 
-for node in $(scontrol show hostname $SLURM_NODELIST); do
-    ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SLURM_SUBMIT_DIR $SLURM_JOBID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=8 --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
+typeset -A nodelist
+while IFS=$':= \t' read key value; do
+  nodelist[$key]=$value
+done <SGE_NODELIST.log
+
+for node in "${!nodelist[@]}"; do
+    ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SLURM_SUBMIT_DIR $SLURM_JOBID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
     #MODIFY --n-workers to the same number of gpus you have!
 done
 
