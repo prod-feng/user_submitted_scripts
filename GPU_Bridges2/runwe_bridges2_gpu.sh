@@ -6,16 +6,16 @@
 #$ -P kenprj
 
 set -x
-#cd $SLURM_SUBMIT_DIR
+cd $SGE_O_WORKDIR
 source env.sh || exit 1
 
 env | sort
 
 cd $WEST_SIM_ROOT
-SERVER_INFO=$WEST_SIM_ROOT/west_zmq_info-$SLURM_JOBID.json
+SERVER_INFO=$WEST_SIM_ROOT/west_zmq_info-$JOB_ID.json
 
 # start server
-$WEST_ROOT/bin/w_run --work-manager=zmq --n-workers=0 --zmq-mode=master --zmq-write-host-info=$SERVER_INFO --zmq-comm-mode=tcp &> west-$SLURM_JOBID.log &
+$WEST_ROOT/bin/w_run --work-manager=zmq --n-workers=0 --zmq-mode=master --zmq-write-host-info=$SERVER_INFO --zmq-comm-mode=tcp &> west-$JOB_ID.log &
 
 # wait on host info file up to one minute
 for ((n=0; n<60; n++)); do
@@ -44,7 +44,7 @@ while IFS=$':= \t' read key value; do
 done <SGE_NODELIST.log
 
 for node in "${!nodelist[@]}"; do
-    ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SLURM_SUBMIT_DIR $SLURM_JOBID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
+    ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SGE_O_WORKDIR $JOB_ID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
     #MODIFY --n-workers to the same number of gpus you have!
 done
 
