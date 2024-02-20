@@ -1,16 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=PROJECTNAME
-#SBATCH --output=job_logs/slurm_test_westpa.out
-#SBATCH --error=job_logs/slurm_test_westpa.err
-#SBATCH --nodes=1 
-#SBATCH --partition GPU
-#SBATCH --ntasks-per-node=8
-#SBATCH --gpus=8
-#SBATCH --time=48:00:00
-#SBATCH --mem=192gb
+#$ -N PROJECTNAME
+#$ -j y
+#$ -q gpu_long_2080ti
+#$ -l ngpus=1
+#$ -P kenprj
 
 set -x
-cd $SLURM_SUBMIT_DIR
+#cd $SLURM_SUBMIT_DIR
 source env.sh || exit 1
 
 env | sort
@@ -39,10 +35,11 @@ fi
 
 # start clients, with the proper number of cores on each
 
-scontrol show hostname $SLURM_NODELIST >& SLURM_NODELIST.log
+cat $pe_hostfile  >& SLURM_NODELIST.log
 
 for node in $(scontrol show hostname $SLURM_NODELIST); do
-    ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SLURM_SUBMIT_DIR $SLURM_JOBID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=8 --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & #MODIFY --n-workers to the same number of gpus you have!
+    ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SLURM_SUBMIT_DIR $SLURM_JOBID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=8 --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
+    #MODIFY --n-workers to the same number of gpus you have!
 done
 
 
