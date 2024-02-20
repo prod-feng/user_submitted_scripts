@@ -37,6 +37,7 @@ fi
 
 cat $pe_hostfile  |awk '{print $1 ," ",$2}' >& SGE_NODELIST.log
 
+# Read in nodename and #gpu
 typeset -A nodelist
 while IFS=$':= \t' read key value; do
   nodelist[$key]=$value
