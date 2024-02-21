@@ -36,7 +36,7 @@ fi
 
 # start clients, with the proper number of cores on each
 
-cat $pe_hostfile  |awk '{print $1 ," ",$2}' >& SGE_NODELIST.log
+cat $PE_HOSTFILE  |awk '{print $1 ," ",$2}' >& SGE_NODELIST.log
 
 # Read in nodename and #gpu
 typeset -A nodelist
