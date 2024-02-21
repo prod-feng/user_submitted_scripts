@@ -9,16 +9,16 @@ export WEST_JOBID=$1; shift
 export SLURM_NODENAME=$1; shift
 export CUDA_VISIBLE_DEVICES_ALLOCATED=$1; shift
 # export LOCAL=/local/$WEST_JOBID
-echo "starting WEST client processes on: "; hostname
-echo "current directory is $PWD"
-echo "environment is: "
-env | sort
+echo "starting WEST client processes on: "; hostname > west-$SLURM_NODENAME-node.log
+echo "current directory is $PWD" >> west-$SLURM_NODENAME-node.log
+echo "environment is: " >> west-$SLURM_NODENAME-node.log
+env | sort >> west-$SLURM_NODENAME-node.log
 
 #May need to get the CUDA_VISIBLE_DEVICES env
 local_cuda=`cat $SGE_JOB_SPOOL_DIR/environment |grep CUDA_VISIBLE_DEVICES`
 export $local_cuda
-echo "CUDA_VISIBLE_DEVICES = " $CUDA_VISIBLE_DEVICES
+echo "CUDA_VISIBLE_DEVICES = " $CUDA_VISIBLE_DEVICES >> west-$SLURM_NODENAME-node.log
 
-w_run "$@" &> west-$SLURM_NODENAME-node.log
+w_run "$@" &>> west-$SLURM_NODENAME-node.log
 
 echo "Shutting down.  Hopefully this was on purpose?"
