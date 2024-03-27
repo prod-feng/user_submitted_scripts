@@ -55,7 +55,7 @@ for i in "${!orders[@]}"; do
       #first node is the master, start the node.sh directly
       $PWD/node.sh $SGE_O_WORKDIR $JOB_ID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
     else
-      ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SGE_O_WORKDIR $JOB_ID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
+      ssh $node $PWD/node.sh $SGE_O_WORKDIR $JOB_ID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
     fi
 #MODIFY --n-workers to the same number of gpus you have!
 done
