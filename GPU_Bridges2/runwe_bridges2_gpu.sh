@@ -39,7 +39,8 @@ fi
 cat $PE_HOSTFILE  |awk '{print $1 ," ",$2}' >& SGE_NODELIST.log
 
 # Read in nodename and #gpu
-declare -a orders #get the orginal order of the nodelist, master first.
+# get the orginal order of the nodelist, master first.
+declare -a orders 
 typeset -A nodelist
 while IFS=$':= \t' read key value; do
   orders+=("$key");
@@ -50,7 +51,8 @@ done <SGE_NODELIST.log
 for i in "${!orders[@]}"; do
     node=${orders[$i]};
     echo "Start $i worker on ", $node;
-    if [ $i == 0 ]; then  #first node is the master, start the node.sh directly
+    if [ $i == 0 ]; then  
+      #first node is the master, start the node.sh directly
       $PWD/node.sh $SGE_O_WORKDIR $JOB_ID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
     else
       ssh -o StrictHostKeyChecking=no $node $PWD/node.sh $SGE_O_WORKDIR $JOB_ID $node $CUDA_VISIBLE_DEVICES --work-manager=zmq --n-workers=${nodelist[$node]} --zmq-mode=client --zmq-read-host-info=$SERVER_INFO --zmq-comm-mode=tcp & 
